@@ -1,4 +1,4 @@
-package com.englesoft.appscheduler.presentation.ui.theme
+package com.englesoft.appscheduler.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

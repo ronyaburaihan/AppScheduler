@@ -1,4 +1,4 @@
-package com.englesoft.appscheduler.presentation.ui.theme
+package com.englesoft.appscheduler.presentation.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
