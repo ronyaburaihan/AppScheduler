@@ -3,6 +3,8 @@ package com.englesoft.appscheduler.data.repository
 import com.englesoft.appscheduler.data.local.dao.ScheduleDao
 import com.englesoft.appscheduler.domain.model.ScheduleInfo
 import com.englesoft.appscheduler.domain.repository.ScheduleRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class ScheduleRepositoryImpl(private val dao: ScheduleDao) : ScheduleRepository {
 
@@ -18,8 +20,16 @@ class ScheduleRepositoryImpl(private val dao: ScheduleDao) : ScheduleRepository 
         dao.update(schedule.toScheduleEntity())
     }
 
-    override suspend fun getSchedules(): List<ScheduleInfo> {
-        return dao.getSchedules().map { it.toScheduleInfo() }
+    override fun getSchedules(): Flow<List<ScheduleInfo>> {
+        return dao.getSchedules().map { schedules ->
+            schedules.map { it.toScheduleInfo() }
+        }
+    }
+
+    override fun getScheduleHistories(): Flow<List<ScheduleInfo>> {
+        return dao.getScheduleHistories().map { schedules ->
+            schedules.map { it.toScheduleInfo() }
+        }
     }
 
     override suspend fun getSchedule(packageName: String): ScheduleInfo? {

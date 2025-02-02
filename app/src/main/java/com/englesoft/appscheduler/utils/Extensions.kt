@@ -7,6 +7,9 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 fun Drawable.toByteArray(): ByteArray {
     val bitmap = Bitmap.createBitmap(
@@ -26,4 +29,10 @@ fun Drawable.toByteArray(): ByteArray {
 fun ByteArray.toDrawable(): Drawable {
     val bitmap = BitmapFactory.decodeByteArray(this, 0, this.size)
     return BitmapDrawable(Resources.getSystem(), bitmap)
+}
+
+fun Long.convertToDateTime(): String {
+    val date = Date(this)
+    val format = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+    return format.format(date)
 }

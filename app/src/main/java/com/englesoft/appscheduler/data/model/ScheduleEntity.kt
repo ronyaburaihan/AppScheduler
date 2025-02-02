@@ -8,10 +8,10 @@ import com.englesoft.appscheduler.utils.toDrawable
 @Entity(tableName = "schedules")
 data class ScheduleEntity(
     @PrimaryKey
+    val triggerTime: Long,
     val packageName: String,
     val name: String,
     val icon: ByteArray,
-    val triggerTime: Long,
     val executed: Boolean = false
 ) {
     override fun equals(other: Any?): Boolean {
