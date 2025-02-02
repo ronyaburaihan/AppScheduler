@@ -1,6 +1,8 @@
 package com.englesoft.appscheduler
 
 import android.app.Application
+import com.englesoft.appscheduler.di.databaseModule
+import com.englesoft.appscheduler.di.repositoryModule
 import com.englesoft.appscheduler.di.useCaseModule
 import com.englesoft.appscheduler.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
@@ -11,7 +13,7 @@ class AppsSchedulerApplication : Application() {
         super.onCreate()
         startKoin {
             androidContext(this@AppsSchedulerApplication)
-            modules(viewModelModule, useCaseModule)
+            modules(databaseModule, repositoryModule, viewModelModule, useCaseModule)
         }
     }
 }
