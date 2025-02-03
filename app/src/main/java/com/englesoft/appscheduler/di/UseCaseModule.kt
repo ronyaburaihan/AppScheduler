@@ -7,6 +7,6 @@ import org.koin.dsl.module
 
 val useCaseModule = module {
     single { GetInstalledAppsUseCase(get()) }
-    single { ScheduleAppUseCase(get()) }
+    single { ScheduleAppUseCase(get(), get()) }
     single { GetSchedulesUseCase(get()) }
 }
