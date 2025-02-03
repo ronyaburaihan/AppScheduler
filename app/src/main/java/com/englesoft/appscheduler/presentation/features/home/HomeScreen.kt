@@ -25,12 +25,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.englesoft.appscheduler.domain.model.ScheduleInfo
+import com.englesoft.appscheduler.presentation.components.DateTimePickerSheet
 import com.englesoft.appscheduler.presentation.theme.CornerRadiusLarge
 import com.englesoft.appscheduler.presentation.theme.PaddingExtraSmall
 import com.englesoft.appscheduler.presentation.theme.PaddingMedium
@@ -46,6 +51,8 @@ fun HomeScreen(
 ) {
 
     val screenState = viewModel.screenState
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var selectedSchedule by remember { mutableStateOf<ScheduleInfo?>(null) }
 
     Scaffold(
         topBar = {
@@ -80,12 +87,27 @@ fun HomeScreen(
                 )
             }
 
+            if (showBottomSheet && selectedSchedule != null) {
+                DateTimePickerSheet(
+                    appName = selectedSchedule!!.name,
+                    initialDate = selectedSchedule!!.triggerTime,
+                    onSchedule = { triggerTime ->
+                        selectedSchedule?.let { schedule ->
+                            viewModel.rescheduleApp(schedule.copy(triggerTime = triggerTime))
+                            showBottomSheet = false
+                        }
+                    },
+                    onDismiss = { showBottomSheet = false }
+                )
+            }
+
             HomeScreenContent(
                 schedules = screenState.schedules,
-                onReschedule = {
-
-                }, onCancel = {
-
+                onReschedule = { scheduleInfo ->
+                    selectedSchedule = scheduleInfo
+                    showBottomSheet = true
+                }, onCancel = { packageName ->
+                    viewModel.cancelSchedule(packageName)
                 }
             )
         }
@@ -95,8 +117,8 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     schedules: List<ScheduleInfo>,
-    onReschedule: () -> Unit,
-    onCancel: () -> Unit
+    onReschedule: (ScheduleInfo) -> Unit,
+    onCancel: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = PaddingMedium),
@@ -116,8 +138,8 @@ private fun HomeScreenContent(
 private fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: ScheduleInfo,
-    onReschedule: () -> Unit,
-    onCancel: () -> Unit
+    onReschedule: (ScheduleInfo) -> Unit,
+    onCancel: (String) -> Unit
 ) {
     Column(
         modifier
@@ -159,7 +181,7 @@ private fun ScheduleItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextButton(
-                onClick = onCancel
+                onClick = { onCancel(schedule.packageName) }
             ) {
                 Text(
                     text = "Cancel",
@@ -171,7 +193,7 @@ private fun ScheduleItem(
             Spacer(modifier = Modifier.width(PaddingSmall))
 
             TextButton(
-                onClick = onReschedule
+                onClick = { onReschedule(schedule) }
             ) {
                 Text(
                     text = "Reschedule",
