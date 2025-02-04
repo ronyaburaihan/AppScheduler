@@ -38,7 +38,7 @@ import androidx.core.graphics.drawable.toDrawable
 import coil.compose.rememberAsyncImagePainter
 import com.englesoft.appscheduler.R
 import com.englesoft.appscheduler.domain.model.AppInfo
-import com.englesoft.appscheduler.presentation.components.DateTimePickerSheet
+import com.englesoft.appscheduler.presentation.features.components.DateTimePickerSheet
 import com.englesoft.appscheduler.presentation.theme.CornerRadiusLarge
 import com.englesoft.appscheduler.presentation.theme.PaddingExtraSmall
 import com.englesoft.appscheduler.presentation.theme.PaddingMedium

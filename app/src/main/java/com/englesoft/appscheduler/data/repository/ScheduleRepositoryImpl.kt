@@ -20,14 +20,14 @@ class ScheduleRepositoryImpl(private val dao: ScheduleDao) : ScheduleRepository 
         dao.update(schedule.toScheduleEntity())
     }
 
-    override fun getSchedules(): Flow<List<ScheduleInfo>> {
-        return dao.getSchedules().map { schedules ->
+    override fun getSchedules(timestamp: Long): Flow<List<ScheduleInfo>> {
+        return dao.getSchedules(timestamp).map { schedules ->
             schedules.map { it.toScheduleInfo() }
         }
     }
 
-    override fun getScheduleHistories(): Flow<List<ScheduleInfo>> {
-        return dao.getScheduleHistories().map { schedules ->
+    override fun getScheduleHistory(timestamp: Long): Flow<List<ScheduleInfo>> {
+        return dao.getScheduleHistory(timestamp).map { schedules ->
             schedules.map { it.toScheduleInfo() }
         }
     }

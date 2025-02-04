@@ -7,8 +7,8 @@ interface ScheduleRepository {
     suspend fun addSchedule(schedule: ScheduleInfo)
     suspend fun removeSchedule(packageName: String)
     suspend fun updateSchedule(schedule: ScheduleInfo)
-    fun getSchedules(): Flow<List<ScheduleInfo>>
-    fun getScheduleHistories(): Flow<List<ScheduleInfo>>
+    fun getSchedules(timestamp: Long): Flow<List<ScheduleInfo>>
+    fun getScheduleHistory(timestamp: Long): Flow<List<ScheduleInfo>>
     suspend fun markAsExecuted(timeStamp: Long)
     suspend fun getSchedule(packageName: String): ScheduleInfo?
 }

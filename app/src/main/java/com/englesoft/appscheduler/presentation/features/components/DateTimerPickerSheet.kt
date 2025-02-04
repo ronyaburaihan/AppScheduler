@@ -1,4 +1,4 @@
-package com.englesoft.appscheduler.presentation.components
+package com.englesoft.appscheduler.presentation.features.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

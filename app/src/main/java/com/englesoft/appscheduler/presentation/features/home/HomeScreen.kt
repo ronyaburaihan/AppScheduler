@@ -32,12 +32,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.englesoft.appscheduler.domain.model.ScheduleInfo
-import com.englesoft.appscheduler.presentation.components.DateTimePickerSheet
+import com.englesoft.appscheduler.presentation.features.components.DateTimePickerSheet
 import com.englesoft.appscheduler.presentation.theme.CornerRadiusLarge
-import com.englesoft.appscheduler.presentation.theme.PaddingExtraSmall
 import com.englesoft.appscheduler.presentation.theme.PaddingMedium
 import com.englesoft.appscheduler.presentation.theme.PaddingSmall
 import com.englesoft.appscheduler.utils.convertToDateTime
@@ -103,6 +103,7 @@ fun HomeScreen(
 
             HomeScreenContent(
                 schedules = screenState.schedules,
+                scheduleHistory = screenState.scheduleHistory,
                 onReschedule = { scheduleInfo ->
                     selectedSchedule = scheduleInfo
                     showBottomSheet = true
@@ -117,18 +118,61 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     schedules: List<ScheduleInfo>,
+    scheduleHistory: List<ScheduleInfo>,
     onReschedule: (ScheduleInfo) -> Unit,
     onCancel: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.padding(horizontal = PaddingMedium),
-        verticalArrangement = Arrangement.spacedBy(PaddingExtraSmall),
+        verticalArrangement = Arrangement.spacedBy(PaddingSmall),
     ) {
+        item {
+            Text(
+                text = "Scheduled Apps",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(vertical = PaddingMedium)
+            )
+        }
+        if (schedules.isEmpty()) {
+            item {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "No scheduled apps available. You can add new app to schedule by clicking on the + button",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
         items(schedules) { schedule ->
             ScheduleItem(
                 schedule = schedule,
                 onReschedule = onReschedule,
                 onCancel = onCancel
+            )
+        }
+        item {
+            Text(
+                text = "Schedule History",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(vertical = PaddingMedium)
+            )
+        }
+        if (scheduleHistory.isEmpty()) {
+            item {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "No schedule history available. Expired schedules will be displayed here.",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
+        items(scheduleHistory) { schedule ->
+            ScheduleItem(
+                schedule = schedule,
+                onReschedule = onReschedule,
+                onCancel = onCancel,
+                isHistory = true
             )
         }
     }
@@ -139,13 +183,14 @@ private fun ScheduleItem(
     modifier: Modifier = Modifier,
     schedule: ScheduleInfo,
     onReschedule: (ScheduleInfo) -> Unit,
-    onCancel: (String) -> Unit
+    onCancel: (String) -> Unit,
+    isHistory: Boolean = false,
 ) {
     Column(
         modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(CornerRadiusLarge))
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
+            .background(if (isHistory && !schedule.executed) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow)
             .padding(PaddingMedium),
     ) {
         Row(
@@ -172,36 +217,44 @@ private fun ScheduleItem(
                     text = "Trigger time: ${schedule.triggerTime.convertToDateTime()}",
                     style = MaterialTheme.typography.bodyMedium
                 )
+                if (isHistory) {
+                    Text(
+                        text = "Execution Status: ${schedule.executed}",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(
-                onClick = { onCancel(schedule.packageName) }
+        if (!isHistory) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = "Cancel",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.outline
-                )
+                TextButton(
+                    onClick = { onCancel(schedule.packageName) }
+                ) {
+                    Text(
+                        text = "Cancel",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(PaddingSmall))
+
+                TextButton(
+                    onClick = { onReschedule(schedule) }
+                ) {
+                    Text(
+                        text = "Reschedule",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
             }
-
-            Spacer(modifier = Modifier.width(PaddingSmall))
-
-            TextButton(
-                onClick = { onReschedule(schedule) }
-            ) {
-                Text(
-                    text = "Reschedule",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
         }
     }
 }

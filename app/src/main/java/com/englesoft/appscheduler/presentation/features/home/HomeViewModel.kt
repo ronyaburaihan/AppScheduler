@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.englesoft.appscheduler.domain.model.ScheduleInfo
 import com.englesoft.appscheduler.domain.usecase.CancelScheduleUseCase
+import com.englesoft.appscheduler.domain.usecase.GetScheduleHistoryUseCase
 import com.englesoft.appscheduler.domain.usecase.GetSchedulesUseCase
 import com.englesoft.appscheduler.domain.usecase.RescheduleAppUseCase
 import kotlinx.coroutines.flow.collectLatest
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 class HomeViewModel(
     private val getSchedulesUseCase: GetSchedulesUseCase,
     private val rescheduleAppUseCase: RescheduleAppUseCase,
-    private val cancelScheduleUseCase: CancelScheduleUseCase
+    private val cancelScheduleUseCase: CancelScheduleUseCase,
+    private val getScheduleHistoryUseCase: GetScheduleHistoryUseCase
 ) : ViewModel() {
 
     var screenState by mutableStateOf(HomeScreenState())
@@ -23,13 +25,24 @@ class HomeViewModel(
 
     init {
         getSchedules()
+        getScheduleHistory()
     }
 
     private fun getSchedules() {
         viewModelScope.launch {
-            getSchedulesUseCase().collectLatest { schedules ->
+            getSchedulesUseCase(System.currentTimeMillis()).collectLatest { schedules ->
                 screenState = screenState.copy(
                     schedules = schedules
+                )
+            }
+        }
+    }
+
+    private fun getScheduleHistory() {
+        viewModelScope.launch {
+            getScheduleHistoryUseCase(System.currentTimeMillis()).collectLatest { schedules ->
+                screenState = screenState.copy(
+                    scheduleHistory = schedules
                 )
             }
         }

@@ -19,14 +19,14 @@ interface ScheduleDao {
     @Update
     suspend fun update(schedule: ScheduleEntity)
 
-    @Query("SELECT * FROM schedules WHERE executed = 0")
-    fun getSchedules(): Flow<List<ScheduleEntity>>
+    @Query("SELECT * FROM schedules WHERE executed = 0 AND triggerTime > :timestamp")
+    fun getSchedules(timestamp: Long): Flow<List<ScheduleEntity>>
 
-    @Query("SELECT * FROM schedules WHERE executed = 1")
-    fun getScheduleHistories(): Flow<List<ScheduleEntity>>
+    @Query("SELECT * FROM schedules WHERE executed = 1 OR triggerTime < :timestamp ORDER BY triggerTime DESC")
+    fun getScheduleHistory(timestamp: Long): Flow<List<ScheduleEntity>>
 
-    @Query("UPDATE schedules SET executed = 1 WHERE triggerTime = :timeStamp")
-    suspend fun markAsExecuted(timeStamp: Long)
+    @Query("UPDATE schedules SET executed = 1 WHERE triggerTime = :timestamp")
+    suspend fun markAsExecuted(timestamp: Long)
 
     @Query("SELECT * FROM schedules WHERE packageName = :packageName")
     suspend fun getSchedule(packageName: String): ScheduleEntity?
