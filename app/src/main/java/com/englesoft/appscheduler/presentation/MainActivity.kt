@@ -1,9 +1,13 @@
 package com.englesoft.appscheduler.presentation
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,6 +25,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         requestNotificationPermission()
+        checkOverlayPermission()
         setContent {
             AppSchedulerTheme {
                 Surface(
@@ -49,5 +54,29 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private fun checkOverlayPermission() {
+        if (!Settings.canDrawOverlays(this)) {
+            showOverlayPermissionDialog()
+        }
+    }
+
+    private fun showOverlayPermissionDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Overlay Permission Required")
+            .setMessage("This app needs permission to display over other apps to run scheduled apps in the background. Please enable it in settings.")
+            .setPositiveButton("Grant Permission") { _, _ ->
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+                startActivity(intent)
+            }
+            .setNegativeButton("Not Now") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setCancelable(false)
+            .show()
     }
 }

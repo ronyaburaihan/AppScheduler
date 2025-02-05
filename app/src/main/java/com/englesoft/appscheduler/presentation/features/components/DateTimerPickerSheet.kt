@@ -15,6 +15,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberDatePickerState
@@ -42,6 +43,14 @@ fun DateTimePickerSheet(
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true
     )
+    val todayMillis = remember {
+        Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
     val selectedCalendar = Calendar.getInstance().apply {
         if (initialDate != null) {
             timeInMillis = initialDate
@@ -49,7 +58,13 @@ fun DateTimePickerSheet(
     }
     val selectedTimeValid = remember { mutableStateOf(true) }
 
-    val datePickerState = rememberDatePickerState().apply {
+    val datePickerState = rememberDatePickerState(
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return utcTimeMillis >= todayMillis
+            }
+        }
+    ).apply {
         if (initialDate != null) {
             selectedDateMillis = initialDate
         }

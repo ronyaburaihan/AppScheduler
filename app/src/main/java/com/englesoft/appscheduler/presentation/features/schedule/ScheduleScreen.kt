@@ -113,7 +113,6 @@ private fun ScheduleScreenContent(
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf<AppInfo?>(null) }
-    var showErrorDialog by remember { mutableStateOf(errorMessage != null) }
 
     if (showBottomSheet && selectedApp != null) {
         DateTimePickerSheet(
