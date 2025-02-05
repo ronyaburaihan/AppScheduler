@@ -28,6 +28,6 @@ interface ScheduleDao {
     @Query("UPDATE schedules SET executed = 1 WHERE triggerTime = :timestamp")
     suspend fun markAsExecuted(timestamp: Long)
 
-    @Query("SELECT * FROM schedules WHERE packageName = :packageName")
-    suspend fun getSchedule(packageName: String): ScheduleEntity?
+    @Query("SELECT * FROM schedules WHERE triggerTime = :timestamp")
+    suspend fun getSchedule(timestamp: Long): ScheduleEntity?
 }

@@ -9,8 +9,15 @@ class ScheduleAppUseCase(
     private val repository: ScheduleRepository,
     private val context: Context
 ) {
-    suspend operator fun invoke(schedule: ScheduleInfo) {
+    suspend operator fun invoke(schedule: ScheduleInfo): String? {
+        val existingSchedule = repository.getSchedule(schedule.triggerTime)
+
+        if (existingSchedule != null) {
+            return "${existingSchedule.name} is already scheduled at this time!"
+        }
+
         repository.addSchedule(schedule)
         AppUtils.scheduleApp(context, schedule.packageName, schedule.triggerTime)
+        return null
     }
 }

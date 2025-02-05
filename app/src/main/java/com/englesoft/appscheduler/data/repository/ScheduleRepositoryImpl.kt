@@ -32,12 +32,12 @@ class ScheduleRepositoryImpl(private val dao: ScheduleDao) : ScheduleRepository 
         }
     }
 
-    override suspend fun markAsExecuted(timeStamp: Long) {
-        dao.markAsExecuted(timeStamp)
+    override suspend fun markAsExecuted(timestamp: Long) {
+        dao.markAsExecuted(timestamp)
     }
 
-    override suspend fun getSchedule(packageName: String): ScheduleInfo? {
-        return dao.getSchedule(packageName)?.toScheduleInfo()
+    override suspend fun getSchedule(timestamp: Long): ScheduleInfo? {
+        return dao.getSchedule(timestamp)?.toScheduleInfo()
     }
 
 }

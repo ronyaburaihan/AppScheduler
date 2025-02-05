@@ -35,9 +35,11 @@ object AppUtils {
             putExtra("package_name", packageName)
             putExtra("trigger_time", triggerTime)
         }
+        val requestCode = triggerTime.hashCode()
+
         val pendingIntent = PendingIntent.getBroadcast(
             context,
-            0,
+            requestCode,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )

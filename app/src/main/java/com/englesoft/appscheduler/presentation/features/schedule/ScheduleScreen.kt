@@ -16,15 +16,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,7 +42,6 @@ import com.englesoft.appscheduler.R
 import com.englesoft.appscheduler.domain.model.AppInfo
 import com.englesoft.appscheduler.presentation.features.components.DateTimePickerSheet
 import com.englesoft.appscheduler.presentation.theme.CornerRadiusLarge
-import com.englesoft.appscheduler.presentation.theme.PaddingExtraSmall
 import com.englesoft.appscheduler.presentation.theme.PaddingMedium
 import com.englesoft.appscheduler.presentation.theme.PaddingSmall
 import org.koin.androidx.compose.koinViewModel
@@ -53,6 +54,12 @@ fun ScheduleScreen(
 ) {
 
     val screenState = viewModel.state.value
+
+    LaunchedEffect(screenState.isScheduleSuccess) {
+        if (screenState.isScheduleSuccess) {
+            onNavigateBack()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -82,25 +89,16 @@ fun ScheduleScreen(
                 .padding(it),
             contentAlignment = Alignment.Center
         ) {
-            if (screenState.isLoading) {
-                CircularProgressIndicator()
-            }
-            screenState.error?.let { errorMessage ->
-                Text(
-                    text = errorMessage,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-            if (screenState.apps.isNotEmpty()) {
-                ScheduleScreenContent(
-                    apps = screenState.apps,
-                    onSchedule = { appInfo, triggerTime ->
-                        viewModel.scheduleApp(appInfo, triggerTime)
-                        onNavigateBack()
-                    }
-                )
-            }
+            ScheduleScreenContent(
+                apps = screenState.apps,
+                onSchedule = { appInfo, triggerTime ->
+                    viewModel.scheduleApp(appInfo, triggerTime)
+                },
+                errorMessage = screenState.error,
+                onErrorDismiss = {
+                    viewModel.clearErrorMessages()
+                }
+            )
         }
     }
 }
@@ -108,11 +106,14 @@ fun ScheduleScreen(
 @Composable
 private fun ScheduleScreenContent(
     apps: List<AppInfo>,
-    onSchedule: (AppInfo, Long) -> Unit
+    errorMessage: String? = null,
+    onSchedule: (AppInfo, Long) -> Unit,
+    onErrorDismiss: () -> Unit
 ) {
 
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedApp by remember { mutableStateOf<AppInfo?>(null) }
+    var showErrorDialog by remember { mutableStateOf(errorMessage != null) }
 
     if (showBottomSheet && selectedApp != null) {
         DateTimePickerSheet(
@@ -127,11 +128,18 @@ private fun ScheduleScreenContent(
         )
     }
 
+    errorMessage?.let {
+        ErrorDialog(
+            errorMessage = errorMessage,
+            onDismiss = onErrorDismiss
+        )
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = PaddingMedium),
-        verticalArrangement = Arrangement.spacedBy(PaddingExtraSmall)
+        verticalArrangement = Arrangement.spacedBy(PaddingSmall)
     ) {
         items(apps) { app ->
             AppItem(
@@ -143,6 +151,28 @@ private fun ScheduleScreenContent(
             )
         }
     }
+}
+
+@Composable
+fun ErrorDialog(errorMessage: String, onDismiss: () -> Unit) {
+    AlertDialog(
+        title = {
+            Text(text = "Error")
+        },
+        text = {
+            Text(text = errorMessage)
+        },
+        onDismissRequest = {
+            onDismiss()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onDismiss,
+            ) {
+                Text("Got it")
+            }
+        },
+    )
 }
 
 @Composable
@@ -188,6 +218,9 @@ private fun ScheduleScreenPreview() {
     ScheduleScreenContent(
         apps = apps,
         onSchedule = { _, _ ->
+
+        },
+        onErrorDismiss = {
 
         }
     )

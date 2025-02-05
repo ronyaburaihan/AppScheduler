@@ -9,6 +9,6 @@ interface ScheduleRepository {
     suspend fun updateSchedule(schedule: ScheduleInfo)
     fun getSchedules(timestamp: Long): Flow<List<ScheduleInfo>>
     fun getScheduleHistory(timestamp: Long): Flow<List<ScheduleInfo>>
-    suspend fun markAsExecuted(timeStamp: Long)
-    suspend fun getSchedule(packageName: String): ScheduleInfo?
+    suspend fun markAsExecuted(timestamp: Long)
+    suspend fun getSchedule(timestamp: Long): ScheduleInfo?
 }

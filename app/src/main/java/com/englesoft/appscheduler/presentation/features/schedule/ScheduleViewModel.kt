@@ -22,11 +22,6 @@ class ScheduleViewModel(
     }
 
     private fun loadAllApps() {
-        state.value = state.value.copy(
-            isLoading = true,
-            error = null
-        )
-
         val apps = getInstalledAppsUseCase()
 
         state.value = state.value.copy(
@@ -37,6 +32,9 @@ class ScheduleViewModel(
     }
 
     fun scheduleApp(appInfo: AppInfo, triggerTime: Long) {
+        state.value = state.value.copy(
+            error = null
+        )
         val scheduleInfo = ScheduleInfo(
             packageName = appInfo.packageName,
             name = appInfo.name,
@@ -44,7 +42,17 @@ class ScheduleViewModel(
             triggerTime = triggerTime
         )
         viewModelScope.launch {
-            scheduleAppUseCase(scheduleInfo)
+            val result = scheduleAppUseCase(scheduleInfo)
+            state.value = state.value.copy(
+                isScheduleSuccess = result == null,
+                error = result
+            )
         }
+    }
+
+    fun clearErrorMessages() {
+        state.value = state.value.copy(
+            error = null
+        )
     }
 }

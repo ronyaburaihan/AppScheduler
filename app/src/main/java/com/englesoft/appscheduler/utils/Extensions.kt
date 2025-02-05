@@ -33,6 +33,6 @@ fun ByteArray.toDrawable(): Drawable {
 
 fun Long.convertToDateTime(): String {
     val date = Date(this)
-    val format = SimpleDateFormat("dd/MM/yyyy hh:mm a", Locale.getDefault())
+    val format = SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.getDefault())
     return format.format(date)
 }
